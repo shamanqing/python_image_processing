@@ -15,8 +15,21 @@ def do_pca(x, topk):
     lx = np.dot(lx, lp.transpose()) + mean
     return lx.astype(np.uint8)
 
+def do_hist(x):
+    hist, bins = np.histogram(x.ravel(), bins=255)
+    cdf = hist.cumsum()
+    cdf = 255 * cdf / cdf[-1]
+    im = np.interp(x.ravel(), bins[:-1], cdf)
+    return im.astype(np.uint8).reshape(x.shape), cdf
+
+def test_pca():
+    im1 = cv2.imread('imgs/l_hires.jpg', cv2.IMREAD_GRAYSCALE)
+    im2 = do_pca(im1, int(im1.shape[1]/5))
+    plt.imshow(im2, cmap='gray')
+    plt.show()
+
 if __name__ == '__main__':
-    img = cv2.imread('imgs/l_hires.jpg', cv2.IMREAD_GRAYSCALE)
-    img_pca = do_pca(img, int(img.shape[1]/5))
-    plt.imshow(img_pca, cmap='gray')
+    im1 = cv2.imread('imgs/l_hires.jpg', cv2.IMREAD_GRAYSCALE)
+    im2 = do_hist(im1)
+    plt.imshow(im2, cmap='gray')
     plt.show()
